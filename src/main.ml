@@ -3,12 +3,11 @@ open Smyth
 (* Parameters *)
 
 type show_type =
-  | ShowTop1
   | ShowTop1R
-  | ShowTop3
+  | ShowTopK of int
 
 let show_type : show_type ref =
-  ref ShowTop1
+  ref (ShowTopK 1)
 
 let suite_test_n : int ref =
   ref 10
@@ -324,9 +323,11 @@ let prog_option_action : prog_option -> string -> bool =
 
       | Show ->
           begin match value with
-            | "top1" -> (show_type := ShowTop1; true)
             | "top1r" -> (show_type := ShowTop1R; true)
-            | "top3" -> (show_type := ShowTop3; true)
+            | x when "top" = (String.sub x 0 3) -> 
+              let num_str = (String.sub x 3 ((String.length x) - 3)) in
+              let k = (int_of_string num_str) in
+              (show_type := ShowTopK k; true)
             | _ -> false
           end
 
@@ -548,15 +549,6 @@ let solve : sketch:string -> (string, string) result =
               |> Rank.sort
           in
           begin match !show_type with
-            | ShowTop1 ->
-                begin match ranked_hole_fillings with
-                  | top :: _ ->
-                      Ok (show_hf top)
-
-                  | _ ->
-                      Error "No solutions."
-                end
-
             | ShowTop1R ->
                 begin match Rank.first_recursive ranked_hole_fillings with
                   | Some top_r ->
@@ -578,13 +570,13 @@ let solve : sketch:string -> (string, string) result =
                       Error "No recursive solutions."
                 end
 
-            | ShowTop3 ->
+            | ShowTopK k ->
                 if ranked_hole_fillings = [] then
                   Error "No solutions."
                 else
                   Ok
                     ( ranked_hole_fillings
-                        |> List2.take 3
+                        |> List2.take k
                         |> show_hfs
                     )
           end
