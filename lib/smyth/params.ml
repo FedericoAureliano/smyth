@@ -15,9 +15,10 @@ let debug_mode : bool ref =
 (** The available methods for ranking synthesis solutions. *)
 type ranking_method =
   | Size (* Rank by AST size *)
+  | SizeCostConst
 
 let ranking_method : ranking_method ref =
-  ref Size
+  ref SizeCostConst
 (** The method to rank synthesis solutions. *)
 
 let max_solution_count : int option ref =

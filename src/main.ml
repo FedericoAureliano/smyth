@@ -5,6 +5,7 @@ open Smyth
 type show_type =
   | ShowTop1R
   | ShowTopK of int
+  | ShowTopKNR of int
 
 let show_type : show_type ref =
   ref (ShowTopK 1)
@@ -273,7 +274,7 @@ let prog_option_info : prog_option -> string * string * string list =
     | Show ->
         ( "Set the display method for forge results"
         , "top1"
-        , ["<top1|top1r|top3>"]
+        , ["<top<k>|top1r|nrtop<k>>"]
         )
 
     | OutputMode ->
@@ -324,10 +325,14 @@ let prog_option_action : prog_option -> string -> bool =
       | Show ->
           begin match value with
             | "top1r" -> (show_type := ShowTop1R; true)
-            | x when "top" = (String.sub x 0 3) -> 
+            | x when String.length x > 3 && (String.sub x 0 3) = "top" -> 
               let num_str = (String.sub x 3 ((String.length x) - 3)) in
               let k = (int_of_string num_str) in
               (show_type := ShowTopK k; true)
+            | x when String.length x > 3 && (String.sub x 0 5) = "nrtop" -> 
+              let num_str = (String.sub x 5 ((String.length x) - 5)) in
+              let k = (int_of_string num_str) in
+              (show_type := ShowTopKNR k; true)
             | _ -> false
           end
 
@@ -579,6 +584,18 @@ let solve : sketch:string -> (string, string) result =
                         |> List2.take k
                         |> show_hfs
                     )
+
+            | ShowTopKNR k ->
+                begin match Rank.filter_non_recursive ranked_hole_fillings with
+                  | [] ->
+                      Error "No non-recursive solutions."
+                  | nr ->
+                      Ok
+                        ( nr
+                            |> List2.take k
+                            |> show_hfs
+                        )
+                end
           end
 
 
