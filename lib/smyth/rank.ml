@@ -88,8 +88,7 @@ let exp_rank : exp -> int =
   match !Params.ranking_method with
     | Params.Size -> exp_size_rank
     | Params.SizeCostConst -> 
-      fun e -> 
-        int_of_float ((float_of_int (exp_const_rank e)) /. (float_of_int (exp_size_rank e)))
+      fun e -> (exp_size_rank e) + ((exp_const_rank e) * 10)
 
 let rank : (hole_name * exp) list -> int =
   List.map (fun (_, e) -> exp_rank e) >> List2.sum

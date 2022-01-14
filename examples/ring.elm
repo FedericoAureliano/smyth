@@ -27,26 +27,20 @@ and a b =
         False _ -> False
         True _ -> True
 
-type Cmp
-  = LT ()
-  | EQ ()
-  | GT ()
-
-compare_nat : Nat -> Nat -> Cmp
-compare_nat n1 n2 =
+eq_nat : Nat -> Nat -> Bool
+eq_nat n1 n2 =
   case n1 of
     Z _ ->
       case n2 of
-        Z _ -> EQ ()
-        S _ -> LT ()
-    S m1 ->
+        Z _ -> True ()
+        S _ -> False ()
+    S a ->
       case n2 of
-        Z _  -> GT ()
-        S m2 -> compare_nat m1 m2
+        S b -> eq_nat a b 
+        Z _ -> False ()
 
-
-eq : MRef -> MRef -> Bool
-eq n1 n2 =
+eq_mref : MRef -> MRef -> Bool
+eq_mref n1 n2 =
   case n1 of
     Client _ ->
       case n2 of
