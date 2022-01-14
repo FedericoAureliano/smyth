@@ -45,8 +45,8 @@ compare_nat n1 n2 =
         S m2 -> compare_nat m1 m2
 
 
-eq_mref : MRef -> MRef -> Bool
-eq_mref n1 n2 =
+eq : MRef -> MRef -> Bool
+eq n1 n2 =
   case n1 of
     Client _ ->
       case n2 of
@@ -68,6 +68,7 @@ check e =
 
 specifyFunction check
   [ (Empty (), True ())
-  , (Send(Client(), Server (), Request(1), Empty ()), True ())
-  , (Send(Server (), Client(), Response(1, False ()), Send(Client(), Server (), Request(1), Empty ())), True ())
+  , (Send(Client (), Server (), Request(1), Empty ()), True ())
+  , (Send(Server (), Client (), Response(1, False ()), Send(Client (), Server (), Request(1), Empty ())), True ())
+  , (Send(Server (), Client (), Response(1, False ()), Send(Client (), Client (), Request(1), Empty ())), False ())
   ]
