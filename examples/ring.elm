@@ -58,11 +58,26 @@ check e =
     Send p -> 
       case (#4.4 p) of
         Empty _ -> True
-        Send q -> and (check (#4.4 p)) ??
+        Send q -> 
+          let
+            a : Nat
+            a = 
+            case (#4.3 p) of 
+              Request i -> i
+              Response ij -> (#2.1 ij)
+          in
+          let
+            b : Nat
+            b = 
+            case (#4.3 q) of 
+              Request i -> i
+              Response ij -> (#2.1 ij)
+          in
+          and (check (#4.4 p)) ??
 
 specifyFunction check
   [ (Empty (), True ())
   , (Send(Client (), Server (), Request(1), Empty ()), True ())
   , (Send(Server (), Client (), Response(1, False ()), Send(Client (), Server (), Request(1), Empty ())), True ())
-  , (Send(Server (), Client (), Response(1, False ()), Send(Client (), Client (), Request(1), Empty ())), False ())
+  , (Send(Server (), Client (), Response(1, False ()), Send(Client (), Client (), Request(0), Empty ())), False ())
   ]
